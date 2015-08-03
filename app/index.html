@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body data-ng-app="notesApp">
+  <main data-ng-controller="notesController">
+    <h1>{{greeting}}</h1>
+    <h2>Outside: {{anotherValue}}</h2>
+    <input type="text" data-ng-model="greeting">
+    <button data-ng-click="alertGreeting()">Greet!</button>
+
+    <section data-ng-controller="anotherController">
+      <h2>{{greeting}}</h2>
+      <h2>Inside: {{anotherValue}}</h2>
+    </section>
+  </main>
+
+  <script src="bundle.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var express = require('express');
 var app = express();
+app.use(express.static(__dirname + '/build'));
 
 var notesRoutes = express.Router();
 
