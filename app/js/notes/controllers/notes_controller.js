@@ -1,51 +1,38 @@
 'use strict';
 
 module.exports = function(app) {
-  app.controller('notesController', ['$scope', '$http', function($scope, $http) {
+  app.controller('notesController', ['$scope', 'RESTResource', function($scope, resource) {
     $scope.notes = [];
     $scope.errors = [];
+    var Note = new resource('notes');
 
     $scope.getAll = function() {
-      $http.get('/api/notes')
-        .then(function(res) {
-          //succcess
-          $scope.notes = res.data;
-        }, function(res) {
-          //error
-          $scope.errors.push({msg: 'could not retrieve notes from server'});
-          console.log(res.data);
-        });
+      Note.getAll(function(err, data) {
+        if (err) return $scope.errors.push({msg: 'error getting notes'});
+        $scope.notes = data;
+      });
     };
 
     $scope.create = function(note) {
       $scope.newNote = null;
-      $http.post('/api/notes', note)
-        .then(function(res) {
-          $scope.notes.push(res.data);
-        }, function(res) {
-          console.log(res.data);
-          $scope.errors.push(res.data);
-        });
+      Note.save(note, function(err, data) {
+        if (err) return $scope.errors.push({msg: 'could note save note: ' + note.noteBody});
+        $scope.notes.push(data);
+      });
     };
 
     $scope.destroy = function(note) {
-      $http.delete('/api/notes/' + note._id)
-        .then(function(res) {
-          $scope.notes.splice($scope.notes.indexOf(note),1);
-        }, function(res) {
-          console.log(res.data);
-          $scope.errors.push(res.data);
-        });
+      Note.destroy(note, function(err, data) {
+        if (err) return $scope.errors.push({msg: 'could not delete note: ' + note.noteBody});
+        $scope.notes.splice($scope.notes.indexOf(note),1);
+      });
     };
 
     $scope.update = function(note) {
-      $http.put('/api/notes/' + note._id, note)
-        .then(function(res) {
-          note.editing = false;
-        }, function(res) {
-          note.editing = false; 
-          console.log(res.data);
-        });
+      Note.update(note, function(err, data) {
+        if (err) return $scope.errors.push({msg: 'could not update note: ' + note.noteBody});
+        note.editing = false;
+      });
     };
   }]);
 };

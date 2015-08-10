@@ -53,7 +53,7 @@
 
 	'use strict';
 	__webpack_require__(2);
-	__webpack_require__(6);
+	__webpack_require__(10);
 
 	describe('notes controller', function() {
 	  var $ControllerConstructor;
@@ -137,10 +137,12 @@
 	'use strict';
 
 	__webpack_require__(3);
+	__webpack_require__(4);
+	__webpack_require__(6);
 
-	var notesApp = angular.module('notesApp', []);
+	var notesApp = angular.module('notesApp', ['services', 'directives']);
 
-	__webpack_require__(4)(notesApp);
+	__webpack_require__(8)(notesApp);
 
 
 /***/ },
@@ -28518,9 +28520,9 @@
 
 	'use strict';
 
-	module.exports = function(app) {
-	  __webpack_require__(5)(app);
-	};
+	var services = module.exports = exports = angular.module('services', []);
+
+	__webpack_require__(5)(services);
 
 
 /***/ },
@@ -28530,51 +28532,49 @@
 	'use strict';
 
 	module.exports = function(app) {
-	  app.controller('notesController', ['$scope', '$http', function($scope, $http) {
-	    $scope.notes = [];
-	    $scope.errors = [];
-
-	    $scope.getAll = function() {
-	      $http.get('/api/notes')
-	        .then(function(res) {
-	          //succcess
-	          $scope.notes = res.data;
-	        }, function(res) {
-	          //error
-	          $scope.errors.push({msg: 'could not retrieve notes from server'});
-	          console.log(res.data);
-	        });
+	  app.factory('RESTResource', ['$http', function($http) {
+	    var handleError = function(callback) {
+	      return function(res) {
+	        console.log(res.data);
+	        callback(res.data);
+	      };
 	    };
 
-	    $scope.create = function(note) {
-	      $scope.newNote = null;
-	      $http.post('/api/notes', note)
-	        .then(function(res) {
-	          $scope.notes.push(res.data);
-	        }, function(res) {
-	          console.log(res.data);
-	          $scope.errors.push(res.data);
-	        });
+	    var handleSuccess = function(callback) {
+	      return function(res) {
+	        callback(null, res.data);
+	      };
 	    };
 
-	    $scope.destroy = function(note) {
-	      $http.delete('/api/notes/' + note._id)
-	        .then(function(res) {
-	          $scope.notes.splice($scope.notes.indexOf(note),1);
-	        }, function(res) {
-	          console.log(res.data);
-	          $scope.errors.push(res.data);
-	        });
-	    };
+	    return function(resourceName) {
+	      var handleRequest = function(method, data, callback) {
+	        var url = '/api/' + resourceName;
+	        if (data && data._id) url += '/' + data._id;
+	        $http({
+	          method: method,
+	          url: url,
+	          data: data
+	        })
+	          .then(handleSuccess(callback), handleError(callback));
+	      };
 
-	    $scope.update = function(note) {
-	      $http.put('/api/notes/' + note._id, note)
-	        .then(function(res) {
-	          note.editing = false;
-	        }, function(res) {
-	          note.editing = false; 
-	          console.log(res.data);
-	        });
+	      return {
+	        getAll: function(callback) {
+	          handleRequest('GET', null, callback);
+	        },
+
+	        save: function(data, callback) {
+	          handleRequest('POST', data, callback);
+	        },
+
+	        update: function(data, callback) {
+	          handleRequest('PUT', data, callback);
+	        },
+
+	        destroy: function(data, callback) {
+	          handleRequest('DELETE', data, callback);
+	        }
+	      }
 	    };
 	  }]);
 	};
@@ -28582,6 +28582,95 @@
 
 /***/ },
 /* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var directives = angular.module('directives', []);
+	__webpack_require__(7)(directives);
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = function(app) {
+	  app.directive('dummyDirective', function() {
+	    return {
+	      restrict: 'CA',
+	      replace: true,
+	      template: '<section><h2>{{anotherVar}}: {{greeting}}</h2><input type="text" data-ng-model="greeting"></section>',
+	      scope: {
+	        greeting: '=',
+	        anotherVar: '@'
+	      },
+	      controller: function($scope) {
+	        $scope.greeting = $scope.greeting || 'Carpe yolo';
+	      }
+	    };
+	  });
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = function(app) {
+	  __webpack_require__(9)(app);
+	};
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = function(app) {
+	  app.controller('notesController', ['$scope', 'RESTResource', function($scope, resource) {
+	    $scope.notes = [];
+	    $scope.errors = [];
+	    var Note = new resource('notes');
+
+	    $scope.getAll = function() {
+	      Note.getAll(function(err, data) {
+	        if (err) return $scope.errors.push({msg: 'error getting notes'});
+	        $scope.notes = data;
+	      });
+	    };
+
+	    $scope.create = function(note) {
+	      $scope.newNote = null;
+	      Note.save(note, function(err, data) {
+	        if (err) return $scope.errors.push({msg: 'could note save note: ' + note.noteBody});
+	        $scope.notes.push(data);
+	      });
+	    };
+
+	    $scope.destroy = function(note) {
+	      Note.destroy(note, function(err, data) {
+	        if (err) return $scope.errors.push({msg: 'could not delete note: ' + note.noteBody});
+	        $scope.notes.splice($scope.notes.indexOf(note),1);
+	      });
+	    };
+
+	    $scope.update = function(note) {
+	      Note.update(note, function(err, data) {
+	        if (err) return $scope.errors.push({msg: 'could not update note: ' + note.noteBody});
+	        note.editing = false;
+	      });
+	    };
+	  }]);
+	};
+
+
+/***/ },
+/* 10 */
 /***/ function(module, exports) {
 
 	/**
