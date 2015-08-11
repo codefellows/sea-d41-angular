@@ -3,3 +3,4 @@ node_modules
 **/*.log
 **/*.sw?
 build/
+test/**/test_bundle.js

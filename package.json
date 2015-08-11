@@ -9,16 +9,22 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.12.3",
-    "express": "^4.12.3",
-    "mongoose": "^4.0.2"
+    "body-parser": "1.12.3",
+    "express": "4.12.3",
+    "mongoose": "4.0.2"
   },
   "devDependencies": {
-    "angular": "^1.4.3",
-    "chai": "^2.3.0",
-    "chai-http": "^1.0.0",
-    "gulp": "^3.9.0",
-    "gulp-webpack": "^1.5.0",
-    "mocha": "^2.2.4"
+    "angular": "1.4.3",
+    "angular-mocks": "1.4.3",
+    "chai": "2.3.0",
+    "chai-http": "1.0.0",
+    "gulp": "3.9.0",
+    "gulp-webpack": "1.5.0",
+    "jasmine-core": "2.3.4",
+    "karma": "0.13.x",
+    "karma-jasmine": "0.3.6",
+    "karma-phantomjs-launcher": "0.2.1",
+    "mocha": "2.2.4",
+    "phantomjs": "1.9.17"
   }
 }

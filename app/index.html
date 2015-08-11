@@ -6,6 +6,9 @@
 </head>
 <body data-ng-app="notesApp">
   <h1>Notes:</h1>
+  <div data-dummy-directive data-greeting="'Hello world'" data-another-var="wow such attributes"></div>
+  <div data-dummy-directive></div>
+
   <main data-ng-controller="notesController" data-ng-init="getAll()">
     <form name="newNoteForm" data-ng-submit="create(newNote)">
       <label for="newNoteBody">Note Body:</label>
