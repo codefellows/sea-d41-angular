@@ -5,16 +5,27 @@
   <title></title>
 </head>
 <body data-ng-app="notesApp">
-  <main data-ng-controller="notesController">
-    <h1>{{greeting}}</h1>
-    <h2>Outside: {{anotherValue}}</h2>
-    <input type="text" data-ng-model="greeting">
-    <button data-ng-click="alertGreeting()">Greet!</button>
+  <h1>Notes:</h1>
+  <main data-ng-controller="notesController" data-ng-init="getAll()">
+    <form name="newNoteForm" data-ng-submit="create(newNote)">
+      <label for="newNoteBody">Note Body:</label>
+      <input type="text" required name="newNoteBody" data-ng-model="newNote.noteBody">
 
-    <section data-ng-controller="anotherController">
-      <h2>{{greeting}}</h2>
-      <h2>Inside: {{anotherValue}}</h2>
-    </section>
+      <button type="submit" data-ng-disabled="newNoteForm.$invalid">Create New Note</button>
+    </form>
+
+    <ul id="noteslist">
+      <li data-ng-repeat="note in notes">
+        {{note.noteBody}}
+        <form data-ng-if="note.editing" name="{{note._id}}form" data-ng-submit="update(note)">
+          <input type="text" data-ng-model="note.noteBody">
+          <button type="submit">Save</button>
+          <button data-ng-click="note.editing = false">Cancel</button>
+        </form>
+        <button data-ng-if="!note.editing" data-ng-click="note.editing = true">Edit</button>
+        <button data-ng-click="destroy(note)">Delete</button>
+      </li>
+    </ul>
   </main>
 
   <script src="bundle.js"></script>
