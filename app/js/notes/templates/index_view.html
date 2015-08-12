@@ -1,0 +1,23 @@
+<section data-ng-controller="notesController" data-ng-init="getAll()">
+  <h1>Notes:</h1>
+  <div data-note-form-directive 
+      data-save="create(note)"
+      data-label-text="'New Note:'"
+      data-button-text="'Create New Note'"
+      data-note="newNote">
+  </div>
+
+  <ul id="noteslist">
+    <li data-ng-repeat="note in notes">
+      {{note.noteBody}}
+      <div data-note-form-directive
+        data-ng-if="note.editing"
+        data-note="note"
+        data-save="update(note)">
+      </div>
+      <button data-ng-if="note.editing" data-ng-click="note.editing = false">Cancel</button>
+      <button data-ng-if="!note.editing" data-ng-click="note.editing = true">Edit</button>
+      <button data-ng-click="destroy(note)">Delete</button>
+    </li>
+  </ul>
+</section>

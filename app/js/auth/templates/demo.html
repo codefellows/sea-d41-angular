@@ -1,0 +1,13 @@
+<section data-ng-controller="authController">
+  <h1>You are here: {{whereAreWe()}}</h1>
+  <button data-ng-click="changePlaces()">Change Places!</button>
+
+  <form data-ng-submit="setCookie(newCookie)">
+    <h2>Cookie Setter</h2>
+    <label for="key">Key:</label>
+    <input type="text" data-ng-model="newCookie.key">
+    <label for="value">Value:</label>
+    <input type="text" data-ng-model="newCookie.value">
+    <button type="submit">Create Cookie</button>
+  </form>
+</section>
